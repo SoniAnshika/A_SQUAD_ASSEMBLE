@@ -1,0 +1,36 @@
+id: ai_support_router
+namespace: customer.support
+
+inputs:
+  - name: category
+    type: STRING
+
+tasks:
+  - id: route
+    type: io.kestra.core.tasks.flows.Switch
+    value: "{{ inputs.category }}"
+    cases:
+      refund:
+        - id: refund-email
+          type: io.kestra.plugin.notifications.slack.SlackExecution
+          url: https://example.com/slack
+          message: "Refund request received!"
+      
+      technical:
+        - id: tech-issue
+          type: io.kestra.plugin.git.GitHubIssueCreate
+          token: "{{ secret.github }}"
+          repository: username/repo
+          title: "Technical Issue"
+          body: "Auto-generated issue"
+      
+      urgent:
+        - id: urgent-alert
+          type: io.kestra.plugin.notifications.slack.SlackExecution
+          url: https://example.com/slack
+          message: "⚠️ URGENT SUPPORT REQUEST"
+      
+      default:
+        - id: default-log
+          type: io.kestra.core.tasks.log.Log
+          message: "General support request"

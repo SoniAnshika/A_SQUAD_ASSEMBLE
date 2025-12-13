@@ -7,8 +7,11 @@ export async function POST(req: Request) {
   try {
     const { message, sessionId  } = await req.json();
     console.log("Received message:", message);
+    console.log("sessionId:", sessionId);
 
     const history = getConversation(sessionId);
+    console.log("history:", history);
+
     // Gemini-generated support reply (string)
     const aiResponse = await generateAIResponse(message, history);
     console.log("AI generated response:", aiResponse);

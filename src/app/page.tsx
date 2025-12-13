@@ -15,10 +15,15 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [profileOpen, setProfileOpen] = useState(false);
-
+  const [sessionId, setSessionId]= useState("");
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat, loading]);
+
+  useEffect(() => {
+    setSessionId(getSessionId());
+    console.log("Session ID:", sessionId);
+  })
 
   function getTime() {
     return new Date().toLocaleTimeString([], {
@@ -26,6 +31,15 @@ export default function Home() {
       minute: "2-digit",
     });
   }
+
+  function getSessionId() {
+  let id = localStorage.getItem("session_id");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("session_id", id);
+  }
+  return id;
+}
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,7 +54,7 @@ export default function Home() {
 
     const resp = await fetch("/api/respond", {
       method: "POST",
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message,sessionId }),
     });
 
     const data = await resp.json();

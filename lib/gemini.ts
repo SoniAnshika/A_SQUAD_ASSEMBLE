@@ -12,7 +12,7 @@ export async function generateAIResponse(
   userMessage: string,
   history: ChatMessage[] = []
 ) {
-  try {
+  
     const contents = [
       {
         role: "user",
@@ -27,18 +27,23 @@ export async function generateAIResponse(
         parts: [{ text: userMessage }],
       },
     ];
-
+try {
     const result = await model.generateContent({ contents });
-    return result.response.text() || fallbackOpenRouter(userMessage);
+    return result.response.text() || fallbackOpenRouter(contents);
   } catch (err) {
     console.warn("Gemini failed, falling back to DeepSeek:");
-    return fallbackOpenRouter(userMessage);
+    return fallbackOpenRouter(contents);
   }
 }
 
 
-async function fallbackOpenRouter(prompt: string) {
+async function fallbackOpenRouter(contents: any[]) {
   try {
+  const messages = contents.map((c) => ({
+      role: c.role === "user" || c.role === "assistant" ? c.role : "system",
+      content: c.parts?.[0]?.text || "",
+    }));
+
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -49,16 +54,7 @@ async function fallbackOpenRouter(prompt: string) {
       },
       body: JSON.stringify({
         model: "deepseek/deepseek-chat",
-        messages: [
-          {
-            role: "system",
-            content: SUPPORT_SYSTEM_PROMPT,
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
+        messages,
       }),
     });
 

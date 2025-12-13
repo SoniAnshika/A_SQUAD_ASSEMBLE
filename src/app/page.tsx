@@ -21,9 +21,10 @@ export default function Home() {
   }, [chat, loading]);
 
   useEffect(() => {
-    setSessionId(getSessionId());
-    console.log("Session ID:", sessionId);
-  })
+    const id = getSessionId();
+    setSessionId(id);
+    console.log("Session ID:", id);
+  }, []);
 
   function getTime() {
     return new Date().toLocaleTimeString([], {

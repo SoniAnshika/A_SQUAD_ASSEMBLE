@@ -1,17 +1,22 @@
 import { NextResponse } from "next/server";
 import { generateAIResponse } from "@/../lib/gemini";
 import { classifyIntent } from "../../../../lib/intent";
+import { getConversation, saveMessage } from "@/../lib/memory";
+
 export async function POST(req: Request) {
   try {
-    const { message } = await req.json();
+    const { message, sessionId  } = await req.json();
     console.log("Received message:", message);
 
+    const history = getConversation(sessionId);
     // Gemini-generated support reply (string)
-    const aiResponse = await generateAIResponse(message);
+    const aiResponse = await generateAIResponse(message, history);
     console.log("AI generated response:", aiResponse);
 
+    saveMessage(sessionId, { role: "user", text: message });
+    saveMessage(sessionId, { role: "assistant", text: aiResponse });
     // Simple local classifier
-   const category = await classifyIntent(message);
+   const category = await classifyIntent(message, history);
 
     return NextResponse.json({
       response: aiResponse,  // fixed output

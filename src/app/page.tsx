@@ -60,7 +60,7 @@ export default function Home() {
   return (
     <main className="flex justify-center items-center h-screen animated-bg">
       {/* Chat shell */}
-      <div className="w-full max-w-md h-[90vh] flex flex-col bg-white/90 backdrop-blur rounded-2xl overflow-hidden shadow-2xl">
+      <div className="relative grid grid-rows-[auto_1fr_auto] w-full max-w-md h-[90vh] bg-white/90 backdrop-blur rounded-2xl overflow-hidden shadow-2xl">
 
         {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 bg-indigo-700 text-white">
@@ -78,98 +78,111 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Overlay to close profile */}
-        {profileOpen && (
-          <div
-            className="absolute inset-0 bg-black/20 z-10"
-            onClick={() => setProfileOpen(false)}
-          />
-        )}
+        {/* CHAT + PROFILE WRAPPER */}
+        <div className="relative overflow-hidden">
 
-        {/* Profile Panel */}
-        <div
-          className={`fixed top-0 right-0 h-[90vh] w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50
-  ${profileOpen ? "translate-x-0" : "translate-x-full"}`}
-        >
-          <div className="flex justify-between items-center px-4 py-3 border-b">
-            <span className="font-semibold text-lg">HelpHive</span>
-            <button onClick={() => setProfileOpen(false)} className="text-xl">✕</button>
-          </div>
-
-          <div className="p-4">
-            <div className="flex flex-col items-center gap-3">
-              <Image
-                src="/helphive-logo.png"
-                alt="HelpHive"
-                width={80}
-                height={80}
-                className="rounded-full"
-              />
-              <span className="font-semibold text-lg">HelpHive</span>
-              <p className="text-sm text-gray-500">Your AI assistant for instant help</p>
-            </div>
-
-            <div className="mt-6">
-              <h4 className="font-semibold mb-2">Status</h4>
-              <p className="text-sm text-gray-600">Online</p>
-
-              <h4 className="font-semibold mt-4 mb-2">Category</h4>
-              <p className="text-sm text-gray-600">AI Customer Support</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Chat area */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 bg-gradient-to-b from-indigo-50 to-indigo-100">
-          {chat.map((msg, i) => (
+          {/* Overlay */}
+          {profileOpen && (
             <div
-              key={i}
-              className={`flex message-animate ${msg.sender === "user" ? "justify-end" : "justify-start"
-                }`}
-            >
-              {/* AI avatar */}
-              {msg.sender === "ai" && (
+              className="absolute inset-0 bg-black/20 z-30"
+              onClick={() => setProfileOpen(false)}
+            />
+          )}
+
+          {/* Profile Panel (confined perfectly) */}
+          <div
+            className={`absolute top-0 right-0 h-full w-80 bg-white
+            border-l border-indigo-100 rounded-l-2xl
+            shadow-[-8px_0_20px_rgba(0,0,0,0.08)]
+            transform transition-transform duration-300 ease-in-out z-40
+            ${profileOpen ? "translate-x-0" : "translate-x-full"}`}
+          >
+            <div className="flex justify-between items-center px-4 py-3 border-b">
+              <span className="font-semibold text-lg">HelpHive</span>
+              <button
+                onClick={() => setProfileOpen(false)}
+                className="text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-4">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-28 h-28 rounded-full bg-white flex items-center justify-center
+shadow-lg ring-4 ring-indigo-100">
+                  <Image
+                    src="/helphive-logo.png"
+                    alt="HelpHive"
+                    width={96}
+                    height={96}
+                    className="rounded-full"
+                  />
+                </div>
+                <span className="font-semibold text-lg">HelpHive</span>
+                <p className="text-sm text-gray-500 text-center">
+                  Your AI assistant for instant help
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <h4 className="font-semibold mb-2">Status</h4>
+                <p className="text-sm text-gray-600">Online</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Chat Scroll Area */}
+          <div className="h-full overflow-y-auto px-3 py-4 space-y-3 bg-gradient-to-b from-indigo-50 to-indigo-100">
+            {chat.map((msg, i) => (
+              <div
+                key={i}
+                className={`flex message-animate ${msg.sender === "user" ? "justify-end" : "justify-start"
+                  }`}
+              >
+                {msg.sender === "ai" && (
+                  <Image
+                    src="/helphive-logo.png"
+                    alt="HelpHive"
+                    width={28}
+                    height={28}
+                    className="rounded-full mr-2 self-end"
+                  />
+                )}
+
+                <div
+                  className={`max-w-[75%] px-3 py-2 rounded-lg text-sm leading-relaxed ${msg.sender === "user"
+                      ? "bg-indigo-600 text-white rounded-tr-none"
+                      : "bg-white text-gray-900 rounded-tl-none shadow"
+                    }`}
+                >
+                  <p className="whitespace-pre-wrap">{msg.text}</p>
+
+                  <div className="flex justify-end items-center gap-1 mt-1 text-[10px] opacity-70">
+                    <span>{msg.time}</span>
+                    {msg.sender === "user" && <span>✓✓</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex justify-start message-animate">
                 <Image
                   src="/helphive-logo.png"
                   alt="HelpHive"
                   width={28}
                   height={28}
-                  className="rounded-full mr-2 self-end"
+                  className="rounded-full mr-2 self-end opacity-70"
                 />
-              )}
-
-              <div
-                className={`max-w-[75%] px-3 py-2 rounded-lg text-sm leading-relaxed ${msg.sender === "user"
-                  ? "bg-indigo-600 text-white rounded-tr-none"
-                  : "bg-white text-gray-900 rounded-tl-none shadow"
-                  }`}
-              >
-                <p className="whitespace-pre-wrap">{msg.text}</p>
-
-                <div className="flex justify-end items-center gap-1 mt-1 text-[10px] opacity-70">
-                  <span>{msg.time}</span>
-                  {msg.sender === "user" && <span>✓✓</span>}
+                <div className="bg-white px-3 py-2 rounded-lg text-sm shadow">
+                  HelpHive is typing…
                 </div>
               </div>
-            </div>
-          ))}
+            )}
 
-          {loading && (
-            <div className="flex justify-start message-animate">
-              <Image
-                src="/helphive-logo.png"
-                alt="HelpHive"
-                width={28}
-                height={28}
-                className="rounded-full mr-2 self-end opacity-70"
-              />
-              <div className="bg-white px-3 py-2 rounded-lg text-sm shadow">
-                HelpHive is typing…
-              </div>
-            </div>
-          )}
-
-          <div ref={bottomRef} />
+            <div ref={bottomRef} />
+          </div>
         </div>
 
         {/* Input */}

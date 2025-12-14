@@ -1,14 +1,15 @@
-export async function triggerKestraWorkflow(category: string) {
-  try {
-    const resp = await fetch(process.env.KESTRA_WORKFLOW_URL || "", {
+export async function triggerKestraWorkflow(payload: {
+  sessionId: string;
+  conversation: any[];
+}) {
+  await fetch(
+    "http://localhost:8080/api/v1/executions/webhook/support/chat-ended",
+    {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ category }),
-    });
-
-    return resp.ok;
-  } catch (err) {
-    console.error("Kestra error:", err);
-    return false;
-  }
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
 }

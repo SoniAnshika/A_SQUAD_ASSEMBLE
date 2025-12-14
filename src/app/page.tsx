@@ -13,6 +13,7 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
+  const [chatEnded, setChatEnded] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [sessionId, setSessionId]= useState("");
@@ -72,6 +73,33 @@ export default function Home() {
     setLoading(false);
   }
 
+  async function handleEndChat() {
+    if (chatEnded) return;
+
+    setLoading(true);
+
+    await fetch("/api/respond", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId,
+        conversationEnded: true,
+      }),
+    });
+
+    setChat((prev) => [
+      ...prev,
+      {
+        sender: "ai",
+        text: "✅ Conversation ended. Our team will take it from here.",
+        time: getTime(),
+      },
+    ]);
+
+    setChatEnded(true);
+    setLoading(false);
+  }
+
   return (
     <main className="flex justify-center items-center h-screen animated-bg">
       {/* Chat shell */}
@@ -91,6 +119,18 @@ export default function Home() {
             <span className="font-semibold tracking-wide">HelpHive</span>
             <p className="text-xs text-indigo-200">online</p>
           </div>
+
+          <button
+            onClick={handleEndChat}
+            disabled={chatEnded}
+            className={`text-xs px-3 py-1 rounded-full ${
+              chatEnded
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-red-500 hover:bg-red-600"
+            }`}
+          >
+            End Chat
+          </button>
         </div>
 
         {/* CHAT + PROFILE WRAPPER */}

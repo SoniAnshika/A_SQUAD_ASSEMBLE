@@ -16,7 +16,8 @@ export default function Home() {
   const [chatEnded, setChatEnded] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [sessionId, setSessionId]= useState("");
+  const [sessionId, setSessionId] = useState("");
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat, loading]);
@@ -35,13 +36,13 @@ export default function Home() {
   }
 
   function getSessionId() {
-  let id = localStorage.getItem("session_id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("session_id", id);
+    let id = localStorage.getItem("session_id");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("session_id", id);
+    }
+    return id;
   }
-  return id;
-}
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,7 +57,7 @@ export default function Home() {
 
     const resp = await fetch("/api/respond", {
       method: "POST",
-      body: JSON.stringify({ message,sessionId }),
+      body: JSON.stringify({ message, sessionId }),
     });
 
     const data = await resp.json();
@@ -102,24 +103,27 @@ export default function Home() {
 
   return (
     <main className="flex justify-center items-center h-screen animated-bg">
-      {/* Chat shell */}
       <div className="relative grid grid-rows-[auto_1fr_auto] w-full max-w-md h-[90vh] bg-white/90 backdrop-blur rounded-2xl overflow-hidden shadow-2xl">
 
-        {/* Header */}
-        <div className="flex items-center gap-3 px-4 py-3 bg-indigo-700 text-white">
-          <Image
-            src="/helphive-logo.png"
-            alt="HelpHive Logo"
-            width={40}
-            height={40}
-            className="rounded-full bg-white p-1 cursor-pointer"
-            onClick={() => setProfileOpen(true)}
-          />
-          <div>
-            <span className="font-semibold tracking-wide">HelpHive</span>
-            <p className="text-xs text-indigo-200">online</p>
+        {/* HEADER (UPDATED) */}
+        <div className="flex items-center justify-between px-4 py-3 bg-indigo-700 text-white">
+          {/* Left */}
+          <div className="flex items-center gap-3">
+            <Image
+              src="/helphive-logo.png"
+              alt="HelpHive Logo"
+              width={40}
+              height={40}
+              className="rounded-full bg-white p-1 cursor-pointer"
+              onClick={() => setProfileOpen(true)}
+            />
+            <div>
+              <span className="font-semibold tracking-wide">HelpHive</span>
+              <p className="text-xs text-indigo-200">online</p>
+            </div>
           </div>
 
+          {/* Right */}
           <button
             onClick={handleEndChat}
             disabled={chatEnded}
@@ -135,8 +139,6 @@ export default function Home() {
 
         {/* CHAT + PROFILE WRAPPER */}
         <div className="relative overflow-hidden">
-
-          {/* Overlay */}
           {profileOpen && (
             <div
               className="absolute inset-0 bg-black/20 z-30"
@@ -144,7 +146,7 @@ export default function Home() {
             />
           )}
 
-          {/* Profile Panel (confined perfectly) */}
+          {/* Profile Panel */}
           <div
             className={`absolute top-0 right-0 h-full w-80 bg-white
             border-l border-indigo-100 rounded-l-2xl
@@ -164,8 +166,7 @@ export default function Home() {
 
             <div className="p-4">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-28 h-28 rounded-full bg-white flex items-center justify-center
-shadow-lg ring-4 ring-indigo-100">
+                <div className="w-28 h-28 rounded-full bg-white flex items-center justify-center shadow-lg ring-4 ring-indigo-100">
                   <Image
                     src="/helphive-logo.png"
                     alt="HelpHive"
@@ -187,13 +188,14 @@ shadow-lg ring-4 ring-indigo-100">
             </div>
           </div>
 
-          {/* Chat Scroll Area */}
+          {/* Chat Area */}
           <div className="h-full overflow-y-auto px-3 py-4 space-y-3 bg-gradient-to-b from-indigo-50 to-indigo-100">
             {chat.map((msg, i) => (
               <div
                 key={i}
-                className={`flex message-animate ${msg.sender === "user" ? "justify-end" : "justify-start"
-                  }`}
+                className={`flex message-animate ${
+                  msg.sender === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 {msg.sender === "ai" && (
                   <Image
@@ -206,13 +208,13 @@ shadow-lg ring-4 ring-indigo-100">
                 )}
 
                 <div
-                  className={`max-w-[75%] px-3 py-2 rounded-lg text-sm leading-relaxed ${msg.sender === "user"
+                  className={`max-w-[75%] px-3 py-2 rounded-lg text-sm leading-relaxed ${
+                    msg.sender === "user"
                       ? "bg-indigo-600 text-white rounded-tr-none"
                       : "bg-white text-gray-900 rounded-tl-none shadow"
-                    }`}
+                  }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.text}</p>
-
                   <div className="flex justify-end items-center gap-1 mt-1 text-[10px] opacity-70">
                     <span>{msg.time}</span>
                     {msg.sender === "user" && <span>✓✓</span>}
